@@ -1,0 +1,5 @@
+name: AbysmalScoreboard
+version: '${project.version}'
+main: net.theabyssmc.abysmalscoreboard.AbysmalScoreboard
+api-version: '1.20'
+load: STARTUP
