@@ -24,7 +24,7 @@ import java.io.FileWriter
 class AbysmalScoreboard : JavaPlugin(), Listener {
     override fun onEnable() {
         Bukkit.getPluginManager().registerEvents(this, this)
-        getCommand("sb")!!.setExecutor(ScoreboardCommand)
+        getCommand("scoreboard")!!.setExecutor(ScoreboardCommand)
         logger.info("AbysmalScoreboard has loaded")
     }
 
@@ -37,6 +37,7 @@ class AbysmalScoreboard : JavaPlugin(), Listener {
     fun onPlayerDeath(event: PlayerDeathEvent) {
         val player = event.entity
         AbysmalScoreboardManager.updateDeaths(player)
+        Bukkit.broadcast(Component.text("Player $player died"))
     }
 
     @EventHandler
@@ -47,6 +48,7 @@ class AbysmalScoreboard : JavaPlugin(), Listener {
         if (killer != null) {
             AbysmalScoreboardManager.updatePvpKills(killer)
             logger.info("Player $victim was killed by $killer")
+            Bukkit.broadcast(Component.text("Player ${victim.name} was killed by $killer"))
         }
     }
 
@@ -146,16 +148,14 @@ object AbysmalScoreboardManager {
         saveData()
     }
 
-    fun updatePvpKills(player: Player?) {
-        if (player != null) {
-            pvpKillsMap[player] = pvpKillsMap.getOrDefault(player, 0) + 1
-            updateScore(player, "pvpKills", pvpKillsMap[player] ?: 0)
-            saveData()
-        }
+    fun updatePvpKills(player: Player) {
+        pvpKillsMap[player] = pvpKillsMap.getOrDefault(player, 0) + 1
+        updateScore(player, "pvpKills", pvpKillsMap[player] ?: 0)
+        saveData()
     }
 
-    private fun updateScore(player: Player?, objectiveName: String, score: Int) {
-        val scoreboard: Scoreboard = player?.scoreboard ?: return
+    private fun updateScore(player: Player, objectiveName: String, score: Int) {
+        val scoreboard: Scoreboard = player.scoreboard
         val objective: Objective? = scoreboard.getObjective(objectiveName)
 
         if (objective != null) {
